@@ -1,6 +1,8 @@
 import os
 from tqdm import tqdm
 import json
+import time
+from datetime import date as DT
 
 FORMAT_LOADED = False
 zero_fill = "00000"
@@ -196,6 +198,49 @@ def extractByDate(file, date):
                         print(line)
         print("job done: " + output_file + " per risultati")
 
+
+def splitfromdate(file, dal):
+    output_file = file + "out" + ".txt"
+    if dict_formato_caricato['separator'] != "":
+        with open(output_file, 'w') as out:
+            with open(file+".txt") as filetxt:
+                for line_number, line in tqdm(enumerate(filetxt, 1)):
+                    try:
+                        params = line.split(" ")
+                        dt = params[int(dict_formato_caricato['data_pos'])]
+                        fromdate = time.strptime(dal, "%d/%m/%Y")
+                        linedate = time.strptime(dt, "%d/%m/%Y")
+                        if linedate >= fromdate:
+                            out.write(line)
+                    except IndexError:
+                        print("\n Errore Linea non conforme")
+                        print("errore @: " + str(line_number))
+                        print(line)
+        print("job done: " + output_file + " per risultati")
+    else:
+        if len(dal) != 8 and len(dal) != 6:
+            print("Questo Formato di data non e supportato")
+            return
+        else:
+            with open(output_file, 'w') as out:
+                with open(file+".txt") as filetxt:
+                    for line_number, line in tqdm(enumerate(filetxt, 1)):
+                        try:
+                            dt = line[int(dict_formato_caricato['data_start']):int(dict_formato_caricato['data_end'])+1]
+                            if len(dt) == 8:
+                                linedate = DT(int(dt[4:8]), int(dt[2:4]), int(dt[0:2]))
+                                fromdate = DT(int(dal[4:8]), int(dal[2:4]), int(dal[0:2]))
+                            elif len(dt) == 6:
+                                linedate = DT(int(dt[4:6]), int(dt[2:4]), int(dt[0:2]))
+                                fromdate = DT(int(dal[4:6]), int(dal[2:4]), int(dal[0:2]))
+                            if linedate >= fromdate:
+                                out.write(line)
+                        except IndexError:
+                            print("\n Errore Linea non conforme")
+                            print("errore @: " + str(line_number))
+                            print(line)
+        print("job done: " + output_file + " per risultati")
+
                   
 if __name__ == "__main__":
     choice = ""
@@ -209,6 +254,7 @@ if __name__ == "__main__":
             print("1 - Converti badge dec -> hex")
             print("2 - Estrai solo badge")
             print("3 - Estrai solo data")
+            print("4 - Estrai da data")
         choice = input()
         if choice == "0":
             menuformati('estrai.json')
@@ -228,3 +274,9 @@ if __name__ == "__main__":
             print("Indicare la data nel formato appropriato")
             date = input()
             extractByDate(file, date)
+        elif choice == "4" and FORMAT_LOADED:
+            print("Nome del file .txt?")
+            file = input()
+            print("Indicare la data nel formato appropriato")
+            date = input()
+            splitfromdate(file, date)
