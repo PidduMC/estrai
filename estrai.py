@@ -155,9 +155,11 @@ def encodeNumberInLine(file, param_number):
     SEP = False
     if dict_formato_caricato['separator'] != "":
         SEP = True
+    with open(file + ".txt" ) as f:
+        size = sum(1 for _ in f)
     with open(output_file, 'w') as out:
         with open(file+".txt") as filetxt:
-            for line_number, line in tqdm(enumerate(filetxt, 1)):
+            for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                 try:
                     encoded_number_str = zero_fill
                     if SEP:
@@ -193,11 +195,13 @@ def encodeNumberInLine(file, param_number):
 
 def extractByBadge(file, badge_number):
     output_file = file + "out" + ".txt"
+    with open(file + ".txt" ) as f:
+        size = sum(1 for _ in f)
     if dict_formato_caricato['separator'] != "":
         print("Con Separatore...")
         with open(output_file, 'w') as out:
             with open(file+".txt") as filetxt:
-                for line_number, line in tqdm(enumerate(filetxt, 1)):
+                for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                     try:
                         params = line.split(" ")
                         badge = params[int(dict_formato_caricato['badge_pos'])]
@@ -212,7 +216,7 @@ def extractByBadge(file, badge_number):
         print("Senza Separatore... " + badge_number)
         with open(output_file, 'w') as out:
             with open(file+".txt") as filetxt:
-                for line_number, line in tqdm(enumerate(filetxt, 1)):
+                for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                     try:
                         badge = line[int(dict_formato_caricato['badge_start']): int(dict_formato_caricato['badge_end'])+1]
                         if badge == badge_number:
@@ -226,10 +230,12 @@ def extractByBadge(file, badge_number):
 
 def extractByDate(file, date):
     output_file = file + "out" + ".txt"
+    with open(file + ".txt" ) as f:
+        size = sum(1 for _ in f)
     if dict_formato_caricato['separator'] != "":
         with open(output_file, 'w') as out:
             with open(file+".txt") as filetxt:
-                for line_number, line in tqdm(enumerate(filetxt, 1)):
+                for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                     try:
                         params = line.split(" ")
                         dt = params[int(dict_formato_caricato['data_pos'])]
@@ -243,7 +249,7 @@ def extractByDate(file, date):
     else:
         with open(output_file, 'w') as out:
             with open(file+".txt") as filetxt:
-                for line_number, line in tqdm(enumerate(filetxt, 1)):
+                for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                     try:
                         dt = line[int(dict_formato_caricato['data_start']):int(dict_formato_caricato['data_end'])+1]
                         if date == dt:
@@ -257,10 +263,12 @@ def extractByDate(file, date):
 
 def splitfromdate(file, dal):
     output_file = file + "out" + ".txt"
+    with open(file + ".txt" ) as f:
+        size = sum(1 for _ in f)
     if dict_formato_caricato['separator'] != "":
         with open(output_file, 'w') as out:
             with open(file+".txt") as filetxt:
-                for line_number, line in tqdm(enumerate(filetxt, 1)):
+                for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                     try:
                         params = line.split(" ")
                         dt = params[int(dict_formato_caricato['data_pos'])]
@@ -280,7 +288,7 @@ def splitfromdate(file, dal):
         else:
             with open(output_file, 'w') as out:
                 with open(file+".txt") as filetxt:
-                    for line_number, line in tqdm(enumerate(filetxt, 1)):
+                    for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                         try:
                             dt = line[int(dict_formato_caricato['data_start']):int(dict_formato_caricato['data_end'])+1]
                             if len(dt) == 8:
@@ -301,6 +309,8 @@ def splitfromdate(file, dal):
 def metaestrai(file):
     campo = ""
     output_file = file + "out" + ".txt"
+    with open(file + ".txt" ) as f:
+        size = sum(1 for _ in f)
     print(dict_formato_caricato)
     print("Campi presenti nel meta-formato")
     for key in dict_formato_caricato.keys():
@@ -315,7 +325,7 @@ def metaestrai(file):
 
     with open(output_file, 'w') as out:
         with open(file + ".txt") as filetxt:
-            for line_number, line in tqdm(enumerate(filetxt, 1)):
+            for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                 try:
                     subline = line[int(dict_formato_caricato[campo][0]): int(dict_formato_caricato[campo][1]) + 1]
                     if subline == value:
