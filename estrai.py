@@ -5,15 +5,19 @@ import time
 from datetime import date as DT
 
 FORMAT_LOADED = False
+FORMAT_IS_META = False
 zero_fill = "00000"
 
+META_DICT = {}
 
-dict_formato_caricato = {"formato": "",
+dict_formato_non_meta = {"formato": "",
                          "sample": "",
                          "id_term_start": "", "id_term_end": "", "verso": "",
                          "badge_start": "", "badge_end": "", "badge_pos": "",
                          "data_start": "", "data_end": "", "data_pos": "",
                          "time_start": "", "time_end": "", "separator": ""}
+
+dict_formato_caricato = {}
 
 dict_formato = {"formato": "konnect",
                  "sample": "0001 A 0000000000 12/10/2017 05:35 000000",
@@ -29,7 +33,8 @@ def menuformati(config):
         print("Scegliere una opzione:")
         print("0 - Elenco Formati")
         print("1 - Nuovo Formato")
-        print("2 - Carica Formato")
+        print("2 - Nuovo META-FORMATO")
+        print("3 - Carica Formato")
         print("q - Menu Precedente")
         choice = input()
         if choice == "0":
@@ -37,6 +42,8 @@ def menuformati(config):
         elif choice == "1":
             nuovoformato(config)
         elif choice == "2":
+            nuovometaformato(config)
+        elif choice == "3":
             caricaformato(config)
 
 
@@ -64,8 +71,49 @@ def nuovoformato(config):
         json.dump(formati, config_file)
 
 
+def nuovometaformato(config):
+    end = True
+    choice = ""
+    global META_DICT
+    META_DICT = {}
+
+    META_DICT["formato"] = ""
+    META_DICT["META"] = True
+    print("Definiziione META formato")
+    print("Questa funzione permette di definire un dizionario chiave - valore, \n" +
+          "ad ogni chiave corrisponde un campo da estrarre" +
+          "i valori di ogni chiave sono la posizione del carattere iniziale e di quello finale che compongono il campo")
+
+    while META_DICT["formato"] == "":
+        print("Inserire Nome Del formato:")
+        META_DICT["formato"] = input()
+
+    while end:
+        print("Nome del campo (chiave)?")
+        chiave = input()
+        print("Poisizione Carattere iniziale")
+        cstart = input()
+        cend = input("Posizone Carattere Finale")
+        META_DICT[chiave] = [cstart, cend]
+        while choice != "S" and choice != "s" and choice != "N" and choice != "n":
+            print("Vuoi inseirere altre chiavi? S/N")
+            choice = input()
+            if choice == "N" or choice == "n":
+                end = False
+            elif choice != "S" and choice != "s" and choice != "N" and choice != "n":
+                print("Scelta non valida: S - s / N - n")
+
+    with open(config, 'r') as config_file:
+        formati = json.load(config_file)
+    with open(config, 'w') as config_file:
+        formati['formati'].append(META_DICT)
+        json.dump(formati, config_file)
+
+
 def caricaformato(config):
     global FORMAT_LOADED
+    global FORMAT_IS_META
+    global dict_formato_caricato
     formato_found = False
     quit = False
     dict_to_load = {}
@@ -79,7 +127,6 @@ def caricaformato(config):
                     print("Formato Trovato, caricamento...")
                     formato_found = True
                     dict_to_load = item
-                    print(dict_to_load)
                     quit = True
                     break
             if formato_found != True:
@@ -89,9 +136,18 @@ def caricaformato(config):
                 if quit == "q":
                     quit = True
             else:
-                for k in dict_formato_caricato.keys():
-                    dict_formato_caricato[k] = dict_to_load[k]
+                dict_formato_caricato = dict_to_load
+                print(dict_formato_caricato)
+                if "META" in dict_formato_caricato.keys():
+                    FORMAT_IS_META = True
+                    print("Questo Formato e un META-FORMATO")
+
+                else:
+                    """for k in dict_formato_caricato.keys():
+                        dict_formato_caricato[k] = dict_to_load[k]"""
+                    print("Formato Standard Caricato")
                 FORMAT_LOADED = True
+
 
 
 def encodeNumberInLine(file, param_number):
@@ -241,7 +297,34 @@ def splitfromdate(file, dal):
                             print(line)
         print("job done: " + output_file + " per risultati")
 
-                  
+
+def metaestrai(file):
+    campo = ""
+    output_file = file + "out" + ".txt"
+    print(dict_formato_caricato)
+    print("Campi presenti nel meta-formato")
+    for key in dict_formato_caricato.keys():
+        if key != "META" and key != "formato":
+            print(key + " : " + str(dict_formato_caricato[key]))
+    while campo not in dict_formato_caricato.keys():
+        print("Nome del campo: ")
+        campo = input()
+
+    print("Valore da ricercare:")
+    value = input()
+
+    with open(output_file, 'w') as out:
+        with open(file + ".txt") as filetxt:
+            for line_number, line in tqdm(enumerate(filetxt, 1)):
+                try:
+                    subline = line[int(dict_formato_caricato[campo][0]): int(dict_formato_caricato[campo][1]) + 1]
+                    if subline == value:
+                        out.write(line)
+                except IndexError:
+                    print("\n Errore Linea non conforme")
+                    print("errore @: " + str(line_number))
+                    print(line)
+
 if __name__ == "__main__":
     choice = ""
     file = ""
@@ -255,10 +338,11 @@ if __name__ == "__main__":
             print("2 - Estrai solo badge")
             print("3 - Estrai solo data")
             print("4 - Estrai da data")
+            print("5 - META-Estrai")
         choice = input()
         if choice == "0":
             menuformati('estrai.json')
-        elif choice =="1" and FORMAT_LOADED:
+        elif choice == "1" and FORMAT_LOADED:
             print("Nome del file .txt?")
             file = input()
             encodeNumberInLine(file, int(dict_formato_caricato['badge_pos']))
@@ -280,3 +364,7 @@ if __name__ == "__main__":
             print("Indicare la data nel formato appropriato")
             date = input()
             splitfromdate(file, date)
+        elif choice == "5" and FORMAT_LOADED and FORMAT_IS_META:
+            print("Nome del file .txt?")
+            file = input()
+            metaestrai(file)

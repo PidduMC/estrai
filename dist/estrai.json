@@ -1,0 +1,36 @@
+{
+  "formati": [
+    {
+      "id_term_start": "0",
+      "verso": "5",
+      "sample": "0001 A 0000000000 12/10/2017 05:35 000000",
+      "data_start": "18",
+      "badge_pos": "2",
+      "separator": " ",
+      "formato": "konnect",
+      "time_start": "29",
+      "data_end": "27",
+      "badge_start": "7",
+      "badge_end": "16",
+      "id_term_end": "3",
+      "time_end": "33",
+      "data_pos": "3"
+    },
+    {
+      "id_term_start": "0",
+      "verso": "4",
+      "sample": "0001A0000000000121020170535000000",
+      "data_start": "15",
+      "badge_pos": "",
+      "separator": "",
+      "formato": "konnectNS",
+      "time_start": "24",
+      "data_end": "22",
+      "badge_start": "5",
+      "badge_end": "14",
+      "id_term_end": "3",
+      "time_end": "27",
+      "data_pos": ""
+    }
+  ]
+}

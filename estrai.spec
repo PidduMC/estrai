@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['estrai.py'],
-             pathex=['C:\\Users\\Marco\\Desktop\\estrai'],
+             pathex=['c:\\Repository\\Scripts py\\estrai'],
              binaries=[],
              datas=[],
              hiddenimports=[],
