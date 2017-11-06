@@ -190,6 +190,7 @@ def encodeNumberInLine(file, param_number):
                     print("\nErrore Linea non conforme")
                     print("errore @: " + str(line_number))
                     print(line)
+                    continue
     return
 
 
@@ -211,6 +212,7 @@ def extractByBadge(file, badge_number):
                         print("\n Errore Linea non conforme")
                         print("errore @: " + str(line_number))
                         print(line)
+                        continue
                 print("job done: " + output_file + " per risultati")
     else:
         print("Senza Separatore... " + badge_number)
@@ -225,6 +227,7 @@ def extractByBadge(file, badge_number):
                         print("\n Errore Linea non conforme")
                         print("errore @: " + str(line_number))
                         print(line)
+                        continue
                 print("job done: " + output_file + " per risultati")
 
 
@@ -238,13 +241,17 @@ def extractByDate(file, date):
                 for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                     try:
                         params = line.split(" ")
-                        dt = params[int(dict_formato_caricato['data_pos'])]
-                        if date == dt:
-                            out.write(line)
+                        try:
+                            dt = params[int(dict_formato_caricato['data_pos'])]
+                            if date == dt:
+                                out.write(line)
+                        except ValueError:
+                            continue
                     except IndexError:
                         print("\n Errore Linea non conforme")
                         print("errore @: " + str(line_number))
                         print(line)
+                        continue
         print("job done: " + output_file + " per risultati")
     else:
         with open(output_file, 'w') as out:
@@ -258,6 +265,7 @@ def extractByDate(file, date):
                         print("\n Errore Linea non conforme")
                         print("errore @: " + str(line_number))
                         print(line)
+                        continue
         print("job done: " + output_file + " per risultati")
 
 
@@ -272,14 +280,18 @@ def splitfromdate(file, dal):
                     try:
                         params = line.split(" ")
                         dt = params[int(dict_formato_caricato['data_pos'])]
-                        fromdate = time.strptime(dal, "%d/%m/%Y")
-                        linedate = time.strptime(dt, "%d/%m/%Y")
+                        try:
+                            fromdate = time.strptime(dal, "%d/%m/%Y")
+                            linedate = time.strptime(dt, "%d/%m/%Y")
+                        except ValueError:
+                            continue
                         if linedate >= fromdate:
                             out.write(line)
                     except IndexError:
                         print("\n Errore Linea non conforme")
                         print("errore @: " + str(line_number))
                         print(line)
+                        continue
         print("job done: " + output_file + " per risultati")
     else:
         if len(dal) != 8 and len(dal) != 6:
@@ -291,18 +303,22 @@ def splitfromdate(file, dal):
                     for line_number, line in tqdm(enumerate(filetxt, 1), total=size, unit="lines"):
                         try:
                             dt = line[int(dict_formato_caricato['data_start']):int(dict_formato_caricato['data_end'])+1]
-                            if len(dt) == 8:
-                                linedate = DT(int(dt[4:8]), int(dt[2:4]), int(dt[0:2]))
-                                fromdate = DT(int(dal[4:8]), int(dal[2:4]), int(dal[0:2]))
-                            elif len(dt) == 6:
-                                linedate = DT(int(dt[4:6]), int(dt[2:4]), int(dt[0:2]))
-                                fromdate = DT(int(dal[4:6]), int(dal[2:4]), int(dal[0:2]))
+                            try:
+                                if len(dt) == 8:
+                                    linedate = DT(int(dt[4:8]), int(dt[2:4]), int(dt[0:2]))
+                                    fromdate = DT(int(dal[4:8]), int(dal[2:4]), int(dal[0:2]))
+                                elif len(dt) == 6:
+                                    linedate = DT(int(dt[4:6]), int(dt[2:4]), int(dt[0:2]))
+                                    fromdate = DT(int(dal[4:6]), int(dal[2:4]), int(dal[0:2]))
+                            except ValueError:
+                                continue
                             if linedate >= fromdate:
                                 out.write(line)
                         except IndexError:
                             print("\n Errore Linea non conforme")
                             print("errore @: " + str(line_number))
                             print(line)
+                            continue
         print("job done: " + output_file + " per risultati")
 
 
@@ -334,6 +350,7 @@ def metaestrai(file):
                     print("\n Errore Linea non conforme")
                     print("errore @: " + str(line_number))
                     print(line)
+                    continue
 
 if __name__ == "__main__":
     choice = ""
